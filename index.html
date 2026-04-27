@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Manduna — Sistema de Reservas</title>
+<title>Manduna — Booking System</title>
 <style>
   :root {
     --bg: #f6f4ef;
@@ -248,20 +248,20 @@
   <div class="login-card">
     <div class="brand-row">
       <div class="brand-mark">M</div>
-      <div><strong>Manduna · Reservas</strong><br><span style="color:var(--muted); font-size:12px;">Acesso da equipe</span></div>
+      <div><strong>Manduna · Bookings</strong><br><span style="color:var(--muted); font-size:12px;">Team access</span></div>
     </div>
-    <h1>Entrar</h1>
-    <p class="sub">Use o e-mail e senha cadastrados pelo administrador.</p>
+    <h1>Sign in</h1>
+    <p class="sub">Use the email and password set up by the administrator.</p>
     <form id="loginForm">
-      <div class="field"><label>E-mail</label><input type="email" id="loginEmail" required autocomplete="username"></div>
-      <div class="field"><label>Senha</label><input type="password" id="loginPass" required autocomplete="current-password"></div>
-      <button type="submit" id="loginBtn">Entrar</button>
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" required autocomplete="username"></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPass" required autocomplete="current-password"></div>
+      <button type="submit" id="loginBtn">Sign in</button>
       <div class="err" id="loginErr"></div>
     </form>
   </div>
 </div>
 
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="color: var(--muted); font-size:13px;" id="loadingMsg">Carregando…</div></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="color: var(--muted); font-size:13px;" id="loadingMsg">Loading…</div></div>
 
 
 <header>
@@ -269,8 +269,8 @@
     <div class="brand">
       <div class="brand-mark">M</div>
       <div>
-        <h1>Manduna · Reservas</h1>
-        <small>Sistema de acompanhamento de hóspedes</small>
+        <h1>Manduna · Bookings</h1>
+        <small>Guest tracking system</small>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:14px;"><div class="kpis" id="kpis"></div><div class="header-user" id="headerUser"></div></div>
@@ -281,54 +281,54 @@
 
   <div class="today-strip">
     <div class="today-card">
-      <h3>Check-ins de hoje</h3>
+      <h3>Today's check-ins</h3>
       <ul id="checkinsHoje"></ul>
     </div>
     <div class="today-card">
-      <h3>Check-outs de hoje</h3>
+      <h3>Today's check-outs</h3>
       <ul id="checkoutsHoje"></ul>
     </div>
     <div class="today-card">
-      <h3>Aguardando pagamento (>3 dias)</h3>
+      <h3>Awaiting payment (&gt;3 days)</h3>
       <ul id="aguardando"></ul>
     </div>
   </div>
 
   <div class="toolbar">
-    <button class="btn primary" id="btnNovo">+ Nova reserva</button>
-    <input type="search" id="busca" placeholder="Buscar nome, email, folio, WhatsApp…" />
+    <button class="btn primary" id="btnNovo">+ New booking</button>
+    <input type="search" id="busca" placeholder="Search name, email, folio, WhatsApp…" />
     <select id="filtroStatus">
-      <option value="">Todos os status</option>
-      <option value="lead">Lead novo</option>
-      <option value="cotacao">Cotação enviada</option>
-      <option value="reservado">Reserva confirmada</option>
-      <option value="aguardando">Aguardando pagamento</option>
-      <option value="deposito">Depósito pago</option>
-      <option value="pago">Pago integral</option>
-      <option value="hospedado">Hospedado</option>
-      <option value="concluido">Concluído</option>
-      <option value="cancelado">Cancelado</option>
+      <option value="">All statuses</option>
+      <option value="lead">New lead</option>
+      <option value="cotacao">Quote sent</option>
+      <option value="reservado">Booking confirmed</option>
+      <option value="aguardando">Awaiting payment</option>
+      <option value="deposito">Deposit paid</option>
+      <option value="pago">Fully paid</option>
+      <option value="hospedado">Staying</option>
+      <option value="concluido">Completed</option>
+      <option value="cancelado">Cancelled</option>
     </select>
     <select id="filtroOrigem">
-      <option value="">Todas as origens</option>
+      <option value="">All sources</option>
       <option value="WhatsApp">WhatsApp</option>
       <option value="Booking">Booking</option>
-      <option value="Indicação">Indicação</option>
-      <option value="Direto">Direto</option>
+      <option value="Indicação">Referral</option>
+      <option value="Direto">Direct</option>
     </select>
     <select id="filtroPeriodo">
-      <option value="">Qualquer período</option>
-      <option value="checkin-hoje">Check-in hoje</option>
-      <option value="checkin-semana">Check-in nesta semana</option>
-      <option value="checkin-mes">Check-in neste mês</option>
-      <option value="checkin-futuro">Check-in futuro</option>
-      <option value="ja-passou">Já hospedados</option>
+      <option value="">Any period</option>
+      <option value="checkin-hoje">Check-in today</option>
+      <option value="checkin-semana">Check-in this week</option>
+      <option value="checkin-mes">Check-in this month</option>
+      <option value="checkin-futuro">Future check-in</option>
+      <option value="ja-passou">Past stays</option>
     </select>
     <span class="spacer"></span>
-    <button class="btn" id="btnImport">↥ Importar JSON</button>
+    <button class="btn" id="btnImport">↥ Import JSON</button>
     <input type="file" id="inputImport" accept="application/json" style="display:none" />
-    <button class="btn" id="btnExportJson">↧ Exportar JSON</button>
-    <button class="btn" id="btnExportCsv">↧ Exportar CSV</button>
+    <button class="btn" id="btnExportJson">↧ Export JSON</button>
+    <button class="btn" id="btnExportCsv">↧ Export CSV</button>
     </div>
 
   <div class="table-wrap">
@@ -336,33 +336,33 @@
       <thead>
         <tr>
           <th data-sort="status">Status</th>
-          <th data-sort="name">Nome</th>
-          <th data-sort="origem">Origem</th>
-          <th data-sort="primeiroContato">1º contato</th>
-          <th data-sort="cotacaoEnviada">Cotação</th>
-          <th data-sort="dataReserva">Reserva</th>
+          <th data-sort="name">Name</th>
+          <th data-sort="origem">Source</th>
+          <th data-sort="primeiroContato">First contact</th>
+          <th data-sort="cotacaoEnviada">Quote</th>
+          <th data-sort="dataReserva">Booking</th>
           <th data-sort="folio">Folio</th>
-          <th data-sort="quarto">Quarto</th>
+          <th data-sort="quarto">Room</th>
           <th data-sort="pax">Pax</th>
-          <th data-sort="diaria">Diária</th>
+          <th data-sort="diaria">Daily rate</th>
           <th data-sort="total">Total</th>
           <th data-sort="checkin">Check-in</th>
           <th data-sort="checkout">Check-out</th>
-          <th data-sort="noites">Noites</th>
-          <th data-sort="depositoData">Depósito</th>
-          <th data-sort="pagamentoFinalData">Pago final</th>
+          <th data-sort="noites">Nights</th>
+          <th data-sort="depositoData">Deposit</th>
+          <th data-sort="pagamentoFinalData">Final paid</th>
           <th>WhatsApp</th>
           <th>Email</th>
-          <th>Ações</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-    <div id="vazio" class="empty-state" style="display:none;">Nenhum registro encontrado.</div>
+    <div id="vazio" class="empty-state" style="display:none;">No records found.</div>
   </div>
 
   <p style="color:var(--muted); font-size:12px; margin-top:12px;">
-    Mostrando <span id="contador">0</span> de <span id="contadorTotal">0</span> reservas. Os dados ficam no banco compartilhado (Supabase). Toda a equipe vê as mesmas informações em tempo real. Use <strong>Exportar JSON</strong> de tempos em tempos para backup local.
+    Showing <span id="contador">0</span> of <span id="contadorTotal">0</span> bookings. Prices shown in USD with IDR equivalent (rate: 1 USD = 16,500 IDR). Data is stored in the shared database (Supabase). The whole team sees the same information in real time. Use <strong>Export JSON</strong> periodically for local backup.
   </p>
 </main>
 
@@ -370,7 +370,7 @@
 <div class="modal-bg" id="modalBg">
   <div class="modal" id="modal">
     <div class="modal-header">
-      <h2 id="modalTitulo">Nova reserva</h2>
+      <h2 id="modalTitulo">New booking</h2>
       <button class="btn ghost" id="btnFechar" style="font-size:18px;">×</button>
     </div>
     <div class="modal-body">
@@ -378,19 +378,19 @@
         <input type="hidden" id="f_id" />
         <div class="form-grid">
 
-          <div class="section-title">Cliente</div>
+          <div class="section-title">Customer</div>
           <div class="field half">
-            <label>Nome *</label>
+            <label>Name *</label>
             <input type="text" id="f_name" required />
           </div>
           <div class="field">
-            <label>Origem</label>
+            <label>Source</label>
             <select id="f_origem">
               <option value="WhatsApp">WhatsApp</option>
               <option value="Booking">Booking</option>
-              <option value="Indicação">Indicação</option>
-              <option value="Direto">Direto</option>
-              <option value="Outro">Outro</option>
+              <option value="Indicação">Referral</option>
+              <option value="Direto">Direct</option>
+              <option value="Outro">Other</option>
             </select>
           </div>
           <div class="field">
@@ -399,20 +399,20 @@
           </div>
           <div class="field">
             <label>WhatsApp</label>
-            <input type="text" id="f_whatsapp" placeholder="+55..." />
+            <input type="text" id="f_whatsapp" placeholder="+62..." />
           </div>
           <div class="field">
-            <label>Pax (hóspedes)</label>
+            <label>Pax (guests)</label>
             <input type="number" id="f_pax" min="0" step="1" />
           </div>
 
-          <div class="section-title">Reserva</div>
+          <div class="section-title">Booking</div>
           <div class="field">
-            <label>Tipo / Quarto</label>
-            <input type="text" id="f_quarto" placeholder="Ex: Suíte Mar, Standard 03…" />
+            <label>Type / Room</label>
+            <input type="text" id="f_quarto" placeholder="E.g. Sea Suite, Standard 03…" />
           </div>
           <div class="field">
-            <label>Diária (R$)</label>
+            <label>Daily rate (USD)</label>
             <input type="number" id="f_diaria" min="0" step="0.01" />
           </div>
           <div class="field">
@@ -428,69 +428,69 @@
             <input type="date" id="f_checkout" />
           </div>
           <div class="field">
-            <label>Total estimado (R$)</label>
+            <label>Estimated total (USD / IDR)</label>
             <input type="text" id="f_total_calc" readonly style="background:#f9fafb; color:var(--muted);" />
           </div>
 
-          <div class="section-title">Funil de vendas</div>
+          <div class="section-title">Sales funnel</div>
           <div class="field">
-            <label>1º contato</label>
+            <label>First contact</label>
             <input type="date" id="f_primeiroContato" />
           </div>
           <div class="field">
-            <label>Cotação enviada</label>
+            <label>Quote sent</label>
             <input type="date" id="f_cotacaoEnviada" />
           </div>
           <div class="field">
-            <label>Data da reserva</label>
+            <label>Booking date</label>
             <input type="date" id="f_dataReserva" />
           </div>
           <div class="field">
-            <label>Confirmação</label>
+            <label>Confirmation</label>
             <input type="date" id="f_confirmacao" />
           </div>
           <div class="field">
-            <label>Grupo WhatsApp criado?</label>
+            <label>WhatsApp group created?</label>
             <select id="f_grupoWhatsapp">
-              <option value="false">Não</option>
-              <option value="true">Sim</option>
+              <option value="false">No</option>
+              <option value="true">Yes</option>
             </select>
           </div>
           <div class="field">
-            <label>Link de pagamento</label>
-            <input type="text" id="f_linkPagamento" placeholder="Sim / Não / data" />
+            <label>Payment link</label>
+            <input type="text" id="f_linkPagamento" placeholder="Yes / No / date" />
           </div>
 
-          <div class="section-title">Pagamentos</div>
+          <div class="section-title">Payments</div>
           <div class="field">
-            <label>Depósito</label>
+            <label>Deposit</label>
             <input type="date" id="f_depositoData" />
           </div>
           <div class="field">
-            <label>Pagamento final</label>
+            <label>Final payment</label>
             <input type="date" id="f_pagamentoFinalData" />
           </div>
           <div class="field">
-            <label>Status manual</label>
+            <label>Manual status</label>
             <select id="f_statusManual">
-              <option value="">Automático (recomendado)</option>
-              <option value="cancelado">Cancelado</option>
+              <option value="">Automatic (recommended)</option>
+              <option value="cancelado">Cancelled</option>
             </select>
           </div>
 
-          <div class="section-title">Observações</div>
+          <div class="section-title">Notes</div>
           <div class="field full">
-            <label>Notas internas</label>
-            <textarea id="f_obs" rows="3" placeholder="Restrições alimentares, pedidos especiais, idioma, observações da equipe…"></textarea>
+            <label>Internal notes</label>
+            <textarea id="f_obs" rows="3" placeholder="Dietary restrictions, special requests, language, team notes…"></textarea>
           </div>
         </div>
       </form>
     </div>
     <div class="modal-footer">
       <span class="left" id="modalRodape"></span>
-      <button class="btn danger" id="btnExcluir" style="display:none;">Excluir</button>
-      <button class="btn" id="btnCancelar">Cancelar</button>
-      <button class="btn primary" id="btnSalvar">Salvar</button>
+      <button class="btn danger" id="btnExcluir" style="display:none;">Delete</button>
+      <button class="btn" id="btnCancelar">Cancel</button>
+      <button class="btn primary" id="btnSalvar">Save</button>
     </div>
   </div>
 </div>
@@ -501,20 +501,20 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 /* =================================================================
-   ⚙️ CONFIGURAÇÃO — COLE AQUI OS DOIS VALORES DO SEU SUPABASE
+   ⚙️ CONFIG — PASTE YOUR TWO SUPABASE VALUES HERE
    ================================================================= */
 const SUPABASE_URL      = "https://nyrlwdalahzyuaaqrzup.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55cmx3ZGFsYWh6eXVhYXFyenVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMDk0MDEsImV4cCI6MjA5Mjg4NTQwMX0.JVQixjfKdvuu9DNXHpdkMl7Tfui8xUNFEfRn2-bMzgk";
 /* =================================================================
-   📌 Onde achar (passo 1.4 do README):
+   📌 Where to find (step 1.4 of the README):
       Supabase → Project Settings → API
         Project URL  → SUPABASE_URL
         anon public  → SUPABASE_ANON_KEY
 
-   ✅ É seguro commitar esses valores no GitHub. A "anon key" foi
-      feita para ser pública. Quem protege os dados é o RLS (Row Level
-      Security) que o supabase_setup.sql já configurou: só usuários
-      autenticados conseguem ler/escrever a tabela.
+   ✅ These values are safe to commit to GitHub. The "anon key" is
+      designed to be public. Data protection comes from RLS (Row
+      Level Security) configured in supabase_setup.sql: only
+      authenticated users can read/write the table.
    ================================================================= */
 
 let sb = null;
@@ -525,8 +525,11 @@ try {
 } catch (e) { console.error("Supabase init error", e); }
 
 if (!sb) {
-  document.getElementById("loginErr").textContent = "⚠️ Configuração do Supabase ausente. Veja README, etapa 2.";
+  document.getElementById("loginErr").textContent = "⚠️ Supabase config missing. See README, step 2.";
 }
+
+/* Currency: source field stores USD. Display USD + IDR. Fixed FX rate. */
+const USD_TO_IDR = 16500;
 
 const STATE = {
   records: [],
@@ -554,11 +557,19 @@ function fmtDate(s) {
   if (!s) return "";
   const d = parseDate(s);
   if (!d) return s;
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
-function fmtBRL(n) {
+function fmtUSD(n) {
   if (!n || isNaN(n)) return "—";
-  return Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 });
+  return Number(n).toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 });
+}
+function fmtIDR(n) {
+  if (!n || isNaN(n)) return "—";
+  return "Rp " + Math.round(Number(n) * USD_TO_IDR).toLocaleString("en-US");
+}
+function fmtBoth(n) {
+  if (!n || isNaN(n)) return "—";
+  return fmtUSD(n) + " / " + fmtIDR(n);
 }
 function noites(ci, co) {
   const a = parseDate(ci), b = parseDate(co);
@@ -578,7 +589,7 @@ function deriveStatus(r) {
   if (ci && co && t >= ci && t <= co) return "hospedado";
   if (r.pagamentoFinalData) return "pago";
   if (r.depositoData) return "deposito";
-  if (r.dataReserva && (r.linkPagamento === "Sim" || (r.linkPagamento && r.linkPagamento.includes("-")))) return "aguardando";
+  if (r.dataReserva && (r.linkPagamento === "Sim" || r.linkPagamento === "Yes" || (r.linkPagamento && r.linkPagamento.includes("-")))) return "aguardando";
   if (r.dataReserva || r.confirmacao) return "reservado";
   if (r.cotacaoEnviada) return "cotacao";
   if (r.primeiroContato || r.name) return "lead";
@@ -586,9 +597,9 @@ function deriveStatus(r) {
 }
 
 const STATUS_LABEL = {
-  lead: "Lead novo", cotacao: "Cotação enviada", reservado: "Reserva confirmada",
-  aguardando: "Aguardando pagto.", deposito: "Depósito pago", pago: "Pago integral",
-  hospedado: "Hospedado", concluido: "Concluído", cancelado: "Cancelado"
+  lead: "New lead", cotacao: "Quote sent", reservado: "Booking confirmed",
+  aguardando: "Awaiting payment", deposito: "Deposit paid", pago: "Fully paid",
+  hospedado: "Staying", concluido: "Completed", cancelado: "Cancelled"
 };
 const STATUS_CLASS = {
   lead: "b-lead", cotacao: "b-cot", reservado: "b-res", aguardando: "b-aguard",
@@ -634,14 +645,14 @@ function fromDB(row) {
 
 async function carregarTudo() {
   if (!sb) return;
-  showLoading("Carregando reservas…");
+  showLoading("Loading bookings…");
   try {
     const { data, error } = await sb.from("reservas").select("*").order("checkin", { ascending: true, nullsFirst: false });
     if (error) throw error;
     STATE.records = (data || []).map(fromDB);
     renderTudo();
   } catch (e) {
-    console.error(e); toast("Erro ao carregar: " + e.message);
+    console.error(e); toast("Error loading: " + e.message);
   } finally { hideLoading(); }
 }
 
@@ -649,13 +660,13 @@ async function upsertReserva(r) {
   if (!sb) return;
   const payload = toDB(r);
   const { error } = await sb.from("reservas").upsert(payload, { onConflict: "id" });
-  if (error) { toast("Erro ao salvar: " + error.message); console.error(error); throw error; }
+  if (error) { toast("Error saving: " + error.message); console.error(error); throw error; }
 }
 
 async function deletarReserva(id) {
   if (!sb) return;
   const { error } = await sb.from("reservas").delete().eq("id", id);
-  if (error) { toast("Erro ao excluir: " + error.message); console.error(error); throw error; }
+  if (error) { toast("Error deleting: " + error.message); console.error(error); throw error; }
 }
 
 function ouvirRealtime() {
@@ -668,14 +679,14 @@ function ouvirRealtime() {
     .subscribe();
 }
 
-function showLoading(msg) { $("#loadingMsg").textContent = msg || "Carregando…"; $("#loadingOverlay").classList.add("show"); }
+function showLoading(msg) { $("#loadingMsg").textContent = msg || "Loading…"; $("#loadingOverlay").classList.add("show"); }
 function hideLoading() { $("#loadingOverlay").classList.remove("show"); }
 
 function showAppForUser(user) {
   STATE.user = user;
   $("#loginBg").style.display = "none";
   document.body.classList.remove("not-authed");
-  $("#headerUser").innerHTML = `<span style="opacity:.85;">${escapeHtml(user.email)}</span><button id="btnSair">Sair</button>`;
+  $("#headerUser").innerHTML = `<span style="opacity:.85;">${escapeHtml(user.email)}</span><button id="btnSair">Sign out</button>`;
   $("#btnSair").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
 }
 function showLoginScreen() {
@@ -685,7 +696,7 @@ function showLoginScreen() {
 
 async function tryLogin(e) {
   e.preventDefault();
-  if (!sb) { $("#loginErr").textContent = "Supabase não configurado."; return; }
+  if (!sb) { $("#loginErr").textContent = "Supabase not configured."; return; }
   const email = $("#loginEmail").value.trim();
   const pass = $("#loginPass").value;
   $("#loginBtn").disabled = true; $("#loginErr").textContent = "";
@@ -696,7 +707,7 @@ async function tryLogin(e) {
     await carregarTudo();
     ouvirRealtime();
   } catch (e) {
-    $("#loginErr").textContent = e.message || "Falha no login.";
+    $("#loginErr").textContent = e.message || "Login failed.";
   } finally { $("#loginBtn").disabled = false; }
 }
 
@@ -716,10 +727,10 @@ function renderKPIs() {
     }
   });
   $("#kpis").innerHTML = `
-    <div class="kpi"><div class="v">${leadsMes}</div><div class="l">Leads no mês</div></div>
-    <div class="kpi"><div class="v">${confirmadas}</div><div class="l">Reservas ativas</div></div>
-    <div class="kpi"><div class="v">${hospedadosHoje}</div><div class="l">Hospedados hoje</div></div>
-    <div class="kpi"><div class="v">${fmtBRL(receitaPrevista)}</div><div class="l">Receita prevista</div></div>
+    <div class="kpi"><div class="v">${leadsMes}</div><div class="l">Leads this month</div></div>
+    <div class="kpi"><div class="v">${confirmadas}</div><div class="l">Active bookings</div></div>
+    <div class="kpi"><div class="v">${hospedadosHoje}</div><div class="l">Staying today</div></div>
+    <div class="kpi"><div class="v">${fmtUSD(receitaPrevista)}</div><div class="l">Forecast revenue</div></div>
   `;
 }
 
@@ -743,7 +754,7 @@ function renderTodayCards() {
   });
 
   const renderList = (arr) => {
-    if (!arr.length) return `<li class="empty">Nada para hoje.</li>`;
+    if (!arr.length) return `<li class="empty">Nothing for today.</li>`;
     return arr.slice(0, 6).map(r => `
       <li><a href="#" data-id="${r.id}" class="open-link" style="color:var(--ink); text-decoration:none;">
         <strong>${escapeHtml(r.name)}</strong>
@@ -753,7 +764,7 @@ function renderTodayCards() {
     `).join("");
   };
   const renderAguardando = (arr) => {
-    if (!arr.length) return `<li class="empty">Nada pendente.</li>`;
+    if (!arr.length) return `<li class="empty">Nothing pending.</li>`;
     return arr.slice(0, 6).map(r => `
       <li><a href="#" data-id="${r.id}" class="open-link" style="color:var(--ink); text-decoration:none;">
         <strong>${escapeHtml(r.name)}</strong>
@@ -809,7 +820,7 @@ function ordenar(records) {
     else if (k === "total") { va = (Number(a.diaria)||0)*noites(a.checkin,a.checkout); vb = (Number(b.diaria)||0)*noites(b.checkin,b.checkout); }
     else { va = a[k] ?? ""; vb = b[k] ?? ""; }
     if (typeof va === "number" && typeof vb === "number") return (va - vb) * dir;
-    return String(va).localeCompare(String(vb), "pt-BR", { numeric: true }) * dir;
+    return String(va).localeCompare(String(vb), "en", { numeric: true }) * dir;
   });
 }
 
@@ -837,8 +848,8 @@ function renderTabela() {
           <td>${escapeHtml(r.folio)}</td>
           <td>${escapeHtml(r.quarto)}</td>
           <td>${r.pax ? r.pax : ""}</td>
-          <td>${r.diaria ? fmtBRL(r.diaria) : ""}</td>
-          <td>${total ? fmtBRL(total) : ""}</td>
+          <td>${r.diaria ? `<div>${fmtUSD(r.diaria)}</div><div style="color:var(--muted); font-size:11px;">${fmtIDR(r.diaria)}</div>` : ""}</td>
+          <td>${total ? `<div>${fmtUSD(total)}</div><div style="color:var(--muted); font-size:11px;">${fmtIDR(total)}</div>` : ""}</td>
           <td>${fmtDate(r.checkin)}</td>
           <td>${fmtDate(r.checkout)}</td>
           <td>${n || ""}</td>
@@ -847,9 +858,9 @@ function renderTabela() {
           <td>${escapeHtml(r.whatsapp)}</td>
           <td>${escapeHtml(r.email)}</td>
           <td class="row-actions">
-            <button title="Editar" data-act="edit">✎</button>
-            <button title="Duplicar" data-act="dup">⎘</button>
-            <button title="Excluir" data-act="del" class="del">🗑</button>
+            <button title="Edit" data-act="edit">✎</button>
+            <button title="Duplicate" data-act="dup">⎘</button>
+            <button title="Delete" data-act="del" class="del">🗑</button>
           </td>
         </tr>
       `;
@@ -877,9 +888,9 @@ function renderTudo() { renderKPIs(); renderTodayCards(); renderTabela(); }
 
 function abrirModal(id) {
   const r = id ? STATE.records.find(x => x.id === id) : null;
-  $("#modalTitulo").textContent = r ? "Editar reserva" : "Nova reserva";
+  $("#modalTitulo").textContent = r ? "Edit booking" : "New booking";
   $("#btnExcluir").style.display = r ? "inline-flex" : "none";
-  $("#modalRodape").textContent = r ? `Status atual: ${STATUS_LABEL[deriveStatus(r)]}` : "Os campos do funil controlam o status automaticamente";
+  $("#modalRodape").textContent = r ? `Current status: ${STATUS_LABEL[deriveStatus(r)]}` : "Funnel fields control the status automatically";
   const fields = ["name","email","whatsapp","quarto","folio","origem","obs",
     "primeiroContato","cotacaoEnviada","dataReserva","confirmacao","linkPagamento",
     "depositoData","pagamentoFinalData","checkin","checkout","statusManual"];
@@ -900,7 +911,7 @@ function fecharModal() { $("#modalBg").classList.remove("open"); }
 function recalcTotal() {
   const d = parseFloat($("#f_diaria").value) || 0;
   const n = noites($("#f_checkin").value, $("#f_checkout").value);
-  $("#f_total_calc").value = d && n ? `${fmtBRL(d * n)} (${n} noite${n>1?"s":""})` : "";
+  $("#f_total_calc").value = d && n ? `${fmtBoth(d * n)} (${n} night${n>1?"s":""})` : "";
 }
 
 async function salvarFormulario(e) {
@@ -911,7 +922,7 @@ async function salvarFormulario(e) {
   const isNew = !id;
   const payload = isNew ? r : { ...r };
   payload.name = $("#f_name").value.trim();
-  if (!payload.name) { toast("Nome é obrigatório"); $("#f_name").focus(); return; }
+  if (!payload.name) { toast("Name is required"); $("#f_name").focus(); return; }
   payload.email = $("#f_email").value.trim();
   payload.whatsapp = $("#f_whatsapp").value.trim();
   payload.origem = $("#f_origem").value;
@@ -932,14 +943,14 @@ async function salvarFormulario(e) {
   payload.statusManual = $("#f_statusManual").value;
   payload.obs = $("#f_obs").value.trim();
 
-  showLoading("Salvando…");
+  showLoading("Saving…");
   try {
     await upsertReserva(payload);
     if (isNew) STATE.records.push(payload);
     else Object.assign(r, payload);
     fecharModal();
     renderTudo();
-    toast(isNew ? "Reserva criada" : "Reserva atualizada");
+    toast(isNew ? "Booking created" : "Booking updated");
   } catch(e) {} finally { hideLoading(); }
 }
 
@@ -948,28 +959,28 @@ async function duplicar(id) {
   if (!orig) return;
   const novo = JSON.parse(JSON.stringify(orig));
   novo.id = uid();
-  novo.name = orig.name + " (cópia)";
+  novo.name = orig.name + " (copy)";
   novo.folio = "";
-  showLoading("Duplicando…");
+  showLoading("Duplicating…");
   try {
     await upsertReserva(novo);
     STATE.records.push(novo);
     renderTudo();
-    toast("Reserva duplicada");
+    toast("Booking duplicated");
   } catch(e) {} finally { hideLoading(); }
 }
 
 async function excluirComConfirma(id) {
   const r = STATE.records.find(x => x.id === id);
   if (!r) return;
-  if (!confirm(`Excluir reserva de ${r.name}? Essa ação não pode ser desfeita.`)) return;
-  showLoading("Excluindo…");
+  if (!confirm(`Delete booking for ${r.name}? This action cannot be undone.`)) return;
+  showLoading("Deleting…");
   try {
     await deletarReserva(id);
     STATE.records = STATE.records.filter(x => x.id !== id);
     fecharModal();
     renderTudo();
-    toast("Reserva excluída");
+    toast("Booking deleted");
   } catch(e) {} finally { hideLoading(); }
 }
 
@@ -981,7 +992,7 @@ function exportarJson() {
   a.href = url; a.download = `manduna-reservas-${stamp}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast("Backup exportado");
+  toast("Backup exported");
 }
 
 function exportarCsv() {
@@ -1007,7 +1018,7 @@ function exportarCsv() {
   a.href = url; a.download = `manduna-reservas-${stamp}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast("CSV exportado");
+  toast("CSV exported");
 }
 
 async function importarJsonArquivo(file) {
@@ -1015,15 +1026,15 @@ async function importarJsonArquivo(file) {
   reader.onload = async () => {
     try {
       const arr = JSON.parse(reader.result);
-      if (!Array.isArray(arr)) throw new Error("não é array");
-      if (!confirm(`Importar ${arr.length} registros? (Os existentes com mesmo ID serão atualizados)`)) return;
-      showLoading(`Importando ${arr.length} registros…`);
+      if (!Array.isArray(arr)) throw new Error("not an array");
+      if (!confirm(`Import ${arr.length} records? (Existing ones with the same ID will be updated)`)) return;
+      showLoading(`Importing ${arr.length} records…`);
       const rows = arr.map(toDB);
       const { error } = await sb.from("reservas").upsert(rows, { onConflict: "id" });
       if (error) throw error;
       await carregarTudo();
-      toast(`Importados ${arr.length} registros`);
-    } catch(e) { alert("Falha ao importar: " + e.message); } finally { hideLoading(); }
+      toast(`Imported ${arr.length} records`);
+    } catch(e) { alert("Import failed: " + e.message); } finally { hideLoading(); }
   };
   reader.readAsText(file);
 }

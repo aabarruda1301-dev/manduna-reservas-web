@@ -1,12 +1,12 @@
 -- ============================================================================
--- Manduna Reservas — Setup do banco no Supabase
--- Rode tudo de uma vez no SQL Editor do Supabase.
+-- Manduna Bookings — Supabase database setup
+-- Run all of this at once in the Supabase SQL Editor.
 -- ============================================================================
 
--- Limpa execuções anteriores (seguro rodar várias vezes)
+-- Drops previous runs (safe to re-run multiple times)
 drop table if exists public.reservas cascade;
 
--- Tabela principal: uma linha por reserva/lead
+-- Main table: one row per booking/lead
 create table public.reservas (
   id                    text primary key,
   name                  text not null,
@@ -36,12 +36,12 @@ create table public.reservas (
   updated_at            timestamptz default now()
 );
 
--- Índices para acelerar buscas comuns
+-- Indexes to speed up common queries
 create index reservas_checkin_idx       on public.reservas (checkin);
 create index reservas_origem_idx        on public.reservas (origem);
 create index reservas_data_reserva_idx  on public.reservas (data_reserva);
 
--- Atualiza updated_at automaticamente em qualquer UPDATE
+-- Auto-update updated_at on every UPDATE
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$
 begin
@@ -55,11 +55,11 @@ create trigger reservas_updated_at
   for each row execute function public.set_updated_at();
 
 -- ============================================================================
--- Row Level Security (RLS) — só usuários logados podem ver/editar
+-- Row Level Security (RLS) — only authenticated users can read/write
 -- ============================================================================
 alter table public.reservas enable row level security;
 
--- Política: qualquer usuário autenticado pode fazer qualquer coisa
+-- Policy: any authenticated user can do everything
 drop policy if exists "auth_select" on public.reservas;
 drop policy if exists "auth_insert" on public.reservas;
 drop policy if exists "auth_update" on public.reservas;
@@ -86,5 +86,5 @@ create policy "auth_delete"
   using (true);
 
 -- ============================================================================
--- Pronto. Próximo passo: importar o CSV pelo Table Editor.
+-- Done. Next step: import the CSV via the Table Editor.
 -- ============================================================================
