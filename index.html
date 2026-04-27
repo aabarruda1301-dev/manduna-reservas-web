@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Manduna — Sistema de Reservas</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --surface: #ffffff;
+    --ink: #1f2a37;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --primary: #0f766e;       /* teal-700 */
+    --primary-soft: #ccfbf1;
+    --accent: #d97706;        /* amber-600 */
+    --danger: #dc2626;
+    --ok: #15803d;
+    --warn: #b45309;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  header {
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+    color: white;
+    padding: 18px 24px;
+    box-shadow: var(--shadow);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; max-width: 1600px; margin: 0 auto;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center;
+    font-weight: 700; font-size: 18px; letter-spacing: .5px;
+  }
+  .brand h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: .3px; }
+  .brand small { display: block; opacity: .8; font-weight: 400; font-size: 12px; }
+
+  .kpis { display: flex; gap: 14px; flex-wrap: wrap; }
+  .kpi {
+    background: rgba(255,255,255,0.12); border-radius: 10px; padding: 8px 14px;
+    min-width: 110px;
+  }
+  .kpi .v { font-size: 18px; font-weight: 700; }
+  .kpi .l { font-size: 11px; opacity: .85; text-transform: uppercase; letter-spacing: .5px; }
+
+  main { max-width: 1600px; margin: 0 auto; padding: 18px 24px 48px; }
+
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 12px; box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .toolbar input[type="search"], .toolbar select {
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+    background: white; font-size: 13px; color: var(--ink); outline: none;
+  }
+  .toolbar input[type="search"] { min-width: 220px; }
+  .toolbar input[type="search"]:focus, .toolbar select:focus { border-color: var(--primary); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line); background: white; color: var(--ink);
+    padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer;
+    transition: background .12s, border-color .12s;
+  }
+  .btn:hover { background: #f9fafb; }
+  .btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+  .btn.primary:hover { background: #115e59; }
+  .btn.danger { color: var(--danger); border-color: #fecaca; background: #fff1f2; }
+  .btn.danger:hover { background: #ffe4e6; }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+  .btn.ghost:hover { color: var(--ink); }
+  .spacer { flex: 1; }
+
+  .today-strip {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .today-card {
+    flex: 1; min-width: 240px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    box-shadow: var(--shadow);
+  }
+  .today-card h3 { margin: 0 0 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .today-card ul { margin: 0; padding-left: 0; list-style: none; }
+  .today-card li { padding: 4px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
+  .today-card li:last-child { border-bottom: none; }
+  .today-card .empty { color: var(--muted); font-style: italic; font-size: 12px; }
+
+  .table-wrap {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    overflow: auto; box-shadow: var(--shadow); max-height: calc(100vh - 280px);
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 1700px; }
+  thead th {
+    position: sticky; top: 0; background: #f3f4f6; color: #374151;
+    font-weight: 600; text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line);
+    white-space: nowrap; font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px;
+    cursor: pointer; user-select: none;
+  }
+  thead th:hover { background: #e5e7eb; }
+  tbody td {
+    padding: 8px 10px; border-bottom: 1px solid #f3f4f6; vertical-align: middle;
+    white-space: nowrap;
+  }
+  tbody tr:hover { background: #fafaf7; }
+  tbody tr.selected { background: #ecfdf5; }
+  tbody td.name-cell { font-weight: 600; color: #111827; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .b-lead    { background: #f3f4f6; color: #374151; }
+  .b-cot     { background: #fef3c7; color: #92400e; }
+  .b-res     { background: #dbeafe; color: #1e40af; }
+  .b-aguard  { background: #fde68a; color: #78350f; }
+  .b-dep     { background: #ddd6fe; color: #5b21b6; }
+  .b-pago    { background: #bbf7d0; color: #166534; }
+  .b-hosp    { background: #ccfbf1; color: #115e59; }
+  .b-fim     { background: #e5e7eb; color: #374151; }
+  .b-canc    { background: #fee2e2; color: #991b1b; }
+  .pill {
+    display:inline-block; padding:1px 7px; border-radius: 6px; font-size: 11px;
+    background: #f3f4f6; color: #4b5563;
+  }
+  .yes { color: var(--ok); font-weight: 600; }
+  .no  { color: #9ca3af; }
+
+  /* Modal */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, .55);
+    display: none; align-items: flex-start; justify-content: center;
+    z-index: 100; padding: 30px 12px; overflow-y: auto;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: white; border-radius: 14px; width: 100%; max-width: 880px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.2); overflow: hidden;
+  }
+  .modal-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-header h2 { margin: 0; font-size: 17px; }
+  .modal-body { padding: 18px 20px; max-height: 70vh; overflow-y: auto; }
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 16px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .form-grid .half { grid-column: span 2; }
+  .field label {
+    display: block; font-size: 11.5px; font-weight: 600;
+    color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .3px;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px; font-size: 13px; background: white; color: var(--ink); outline: none;
+    font-family: inherit;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); }
+  .section-title {
+    grid-column: 1 / -1; font-size: 12px; color: var(--primary); text-transform: uppercase;
+    letter-spacing: .5px; font-weight: 700; padding-top: 10px; border-top: 1px dashed var(--line);
+  }
+  .section-title:first-child { border-top: none; padding-top: 0; }
+  .modal-footer {
+    padding: 14px 20px; border-top: 1px solid var(--line);
+    display: flex; gap: 8px; justify-content: flex-end; align-items: center;
+  }
+  .modal-footer .left { margin-right: auto; color: var(--muted); font-size: 12px; }
+
+  .row-actions { display: inline-flex; gap: 4px; }
+  .row-actions button {
+    border: none; background: transparent; cursor: pointer; padding: 4px 6px;
+    border-radius: 6px; color: var(--muted); font-size: 14px;
+  }
+  .row-actions button:hover { background: #f3f4f6; color: var(--ink); }
+  .row-actions button.del:hover { background: #fee2e2; color: var(--danger); }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+  .toast {
+    position: fixed; bottom: 22px; right: 22px;
+    background: var(--ink); color: white; padding: 10px 16px;
+    border-radius: 8px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: translateY(20px); opacity: 0; transition: all .25s;
+    z-index: 200;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 720px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid .half { grid-column: 1; }
+    header { padding: 14px; }
+    main { padding: 12px; }
+    .kpis { display: none; }
+  }
+
+  /* ---------- Login overlay ---------- */
+  .login-bg {
+    position: fixed; inset: 0; background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+    display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+  }
+  .login-card {
+    background: white; border-radius: 16px; padding: 32px 28px; width: 100%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+  .login-card h1 { margin: 0 0 4px; font-size: 22px; color: var(--ink); }
+  .login-card .sub { margin: 0 0 22px; color: var(--muted); font-size: 13px; }
+  .login-card .field { margin-bottom: 14px; }
+  .login-card label { display:block; font-size:11.5px; font-weight:600; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.3px; }
+  .login-card input { width:100%; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:14px; outline:none; }
+  .login-card input:focus { border-color: var(--primary); }
+  .login-card button { width:100%; padding:11px 14px; border-radius:8px; border:none; background: var(--primary); color:white; font-size:14px; font-weight:600; cursor:pointer; }
+  .login-card button:hover { background: #115e59; }
+  .login-card button:disabled { opacity: .6; cursor: not-allowed; }
+  .login-card .err { color: var(--danger); font-size:12.5px; margin-top:10px; min-height: 1em; }
+  .login-card .brand-row { display:flex; align-items:center; gap:10px; margin-bottom: 22px; }
+  .login-card .brand-mark { width:36px; height:36px; border-radius:10px; background: var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; }
+
+  .header-user { display:flex; align-items:center; gap:8px; color: white; font-size: 12.5px; }
+  .header-user button { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .header-user button:hover { background: rgba(255,255,255,0.25); }
+
+  .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display:none; align-items:center; justify-content:center; z-index: 500; flex-direction: column; gap: 12px; }
+  .loading-overlay.show { display: flex; }
+  .spinner { width: 32px; height: 32px; border: 3px solid #e5e7eb; border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  body.not-authed > header, body.not-authed > main { visibility: hidden; }
+
+</style>
+</head>
+<body class="not-authed">
+
+<!-- LOGIN -->
+<div class="login-bg" id="loginBg">
+  <div class="login-card">
+    <div class="brand-row">
+      <div class="brand-mark">M</div>
+      <div><strong>Manduna · Reservas</strong><br><span style="color:var(--muted); font-size:12px;">Acesso da equipe</span></div>
+    </div>
+    <h1>Entrar</h1>
+    <p class="sub">Use o e-mail e senha cadastrados pelo administrador.</p>
+    <form id="loginForm">
+      <div class="field"><label>E-mail</label><input type="email" id="loginEmail" required autocomplete="username"></div>
+      <div class="field"><label>Senha</label><input type="password" id="loginPass" required autocomplete="current-password"></div>
+      <button type="submit" id="loginBtn">Entrar</button>
+      <div class="err" id="loginErr"></div>
+    </form>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="color: var(--muted); font-size:13px;" id="loadingMsg">Carregando…</div></div>
+
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div>
+        <h1>Manduna · Reservas</h1>
+        <small>Sistema de acompanhamento de hóspedes</small>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;"><div class="kpis" id="kpis"></div><div class="header-user" id="headerUser"></div></div>
+  </div>
+</header>
+
+<main>
+
+  <div class="today-strip">
+    <div class="today-card">
+      <h3>Check-ins de hoje</h3>
+      <ul id="checkinsHoje"></ul>
+    </div>
+    <div class="today-card">
+      <h3>Check-outs de hoje</h3>
+      <ul id="checkoutsHoje"></ul>
+    </div>
+    <div class="today-card">
+      <h3>Aguardando pagamento (>3 dias)</h3>
+      <ul id="aguardando"></ul>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn primary" id="btnNovo">+ Nova reserva</button>
+    <input type="search" id="busca" placeholder="Buscar nome, email, folio, WhatsApp…" />
+    <select id="filtroStatus">
+      <option value="">Todos os status</option>
+      <option value="lead">Lead novo</option>
+      <option value="cotacao">Cotação enviada</option>
+      <option value="reservado">Reserva confirmada</option>
+      <option value="aguardando">Aguardando pagamento</option>
+      <option value="deposito">Depósito pago</option>
+      <option value="pago">Pago integral</option>
+      <option value="hospedado">Hospedado</option>
+      <option value="concluido">Concluído</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+    <select id="filtroOrigem">
+      <option value="">Todas as origens</option>
+      <option value="WhatsApp">WhatsApp</option>
+      <option value="Booking">Booking</option>
+      <option value="Indicação">Indicação</option>
+      <option value="Direto">Direto</option>
+    </select>
+    <select id="filtroPeriodo">
+      <option value="">Qualquer período</option>
+      <option value="checkin-hoje">Check-in hoje</option>
+      <option value="checkin-semana">Check-in nesta semana</option>
+      <option value="checkin-mes">Check-in neste mês</option>
+      <option value="checkin-futuro">Check-in futuro</option>
+      <option value="ja-passou">Já hospedados</option>
+    </select>
+    <span class="spacer"></span>
+    <button class="btn" id="btnImport">↥ Importar JSON</button>
+    <input type="file" id="inputImport" accept="application/json" style="display:none" />
+    <button class="btn" id="btnExportJson">↧ Exportar JSON</button>
+    <button class="btn" id="btnExportCsv">↧ Exportar CSV</button>
+    </div>
+
+  <div class="table-wrap">
+    <table id="tabela">
+      <thead>
+        <tr>
+          <th data-sort="status">Status</th>
+          <th data-sort="name">Nome</th>
+          <th data-sort="origem">Origem</th>
+          <th data-sort="primeiroContato">1º contato</th>
+          <th data-sort="cotacaoEnviada">Cotação</th>
+          <th data-sort="dataReserva">Reserva</th>
+          <th data-sort="folio">Folio</th>
+          <th data-sort="quarto">Quarto</th>
+          <th data-sort="pax">Pax</th>
+          <th data-sort="diaria">Diária</th>
+          <th data-sort="total">Total</th>
+          <th data-sort="checkin">Check-in</th>
+          <th data-sort="checkout">Check-out</th>
+          <th data-sort="noites">Noites</th>
+          <th data-sort="depositoData">Depósito</th>
+          <th data-sort="pagamentoFinalData">Pago final</th>
+          <th>WhatsApp</th>
+          <th>Email</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="vazio" class="empty-state" style="display:none;">Nenhum registro encontrado.</div>
+  </div>
+
+  <p style="color:var(--muted); font-size:12px; margin-top:12px;">
+    Mostrando <span id="contador">0</span> de <span id="contadorTotal">0</span> reservas. Os dados ficam no banco compartilhado (Supabase). Toda a equipe vê as mesmas informações em tempo real. Use <strong>Exportar JSON</strong> de tempos em tempos para backup local.
+  </p>
+</main>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modalTitulo">Nova reserva</h2>
+      <button class="btn ghost" id="btnFechar" style="font-size:18px;">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="formReserva">
+        <input type="hidden" id="f_id" />
+        <div class="form-grid">
+
+          <div class="section-title">Cliente</div>
+          <div class="field half">
+            <label>Nome *</label>
+            <input type="text" id="f_name" required />
+          </div>
+          <div class="field">
+            <label>Origem</label>
+            <select id="f_origem">
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Booking">Booking</option>
+              <option value="Indicação">Indicação</option>
+              <option value="Direto">Direto</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="f_email" />
+          </div>
+          <div class="field">
+            <label>WhatsApp</label>
+            <input type="text" id="f_whatsapp" placeholder="+55..." />
+          </div>
+          <div class="field">
+            <label>Pax (hóspedes)</label>
+            <input type="number" id="f_pax" min="0" step="1" />
+          </div>
+
+          <div class="section-title">Reserva</div>
+          <div class="field">
+            <label>Tipo / Quarto</label>
+            <input type="text" id="f_quarto" placeholder="Ex: Suíte Mar, Standard 03…" />
+          </div>
+          <div class="field">
+            <label>Diária (R$)</label>
+            <input type="number" id="f_diaria" min="0" step="0.01" />
+          </div>
+          <div class="field">
+            <label>Folio</label>
+            <input type="text" id="f_folio" />
+          </div>
+          <div class="field">
+            <label>Check-in</label>
+            <input type="date" id="f_checkin" />
+          </div>
+          <div class="field">
+            <label>Check-out</label>
+            <input type="date" id="f_checkout" />
+          </div>
+          <div class="field">
+            <label>Total estimado (R$)</label>
+            <input type="text" id="f_total_calc" readonly style="background:#f9fafb; color:var(--muted);" />
+          </div>
+
+          <div class="section-title">Funil de vendas</div>
+          <div class="field">
+            <label>1º contato</label>
+            <input type="date" id="f_primeiroContato" />
+          </div>
+          <div class="field">
+            <label>Cotação enviada</label>
+            <input type="date" id="f_cotacaoEnviada" />
+          </div>
+          <div class="field">
+            <label>Data da reserva</label>
+            <input type="date" id="f_dataReserva" />
+          </div>
+          <div class="field">
+            <label>Confirmação</label>
+            <input type="date" id="f_confirmacao" />
+          </div>
+          <div class="field">
+            <label>Grupo WhatsApp criado?</label>
+            <select id="f_grupoWhatsapp">
+              <option value="false">Não</option>
+              <option value="true">Sim</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Link de pagamento</label>
+            <input type="text" id="f_linkPagamento" placeholder="Sim / Não / data" />
+          </div>
+
+          <div class="section-title">Pagamentos</div>
+          <div class="field">
+            <label>Depósito</label>
+            <input type="date" id="f_depositoData" />
+          </div>
+          <div class="field">
+            <label>Pagamento final</label>
+            <input type="date" id="f_pagamentoFinalData" />
+          </div>
+          <div class="field">
+            <label>Status manual</label>
+            <select id="f_statusManual">
+              <option value="">Automático (recomendado)</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="section-title">Observações</div>
+          <div class="field full">
+            <label>Notas internas</label>
+            <textarea id="f_obs" rows="3" placeholder="Restrições alimentares, pedidos especiais, idioma, observações da equipe…"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <span class="left" id="modalRodape"></span>
+      <button class="btn danger" id="btnExcluir" style="display:none;">Excluir</button>
+      <button class="btn" id="btnCancelar">Cancelar</button>
+      <button class="btn primary" id="btnSalvar">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+/* =================================================================
+   ⚙️ CONFIGURAÇÃO — COLE AQUI OS DOIS VALORES DO SEU SUPABASE
+   ================================================================= */
+const SUPABASE_URL      = "https://nyrlwdalahzyuaaqrzup.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55cmx3ZGFsYWh6eXVhYXFyenVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMDk0MDEsImV4cCI6MjA5Mjg4NTQwMX0.JVQixjfKdvuu9DNXHpdkMl7Tfui8xUNFEfRn2-bMzgk";
+/* =================================================================
+   📌 Onde achar (passo 1.4 do README):
+      Supabase → Project Settings → API
+        Project URL  → SUPABASE_URL
+        anon public  → SUPABASE_ANON_KEY
+
+   ✅ É seguro commitar esses valores no GitHub. A "anon key" foi
+      feita para ser pública. Quem protege os dados é o RLS (Row Level
+      Security) que o supabase_setup.sql já configurou: só usuários
+      autenticados conseguem ler/escrever a tabela.
+   ================================================================= */
+
+let sb = null;
+try {
+  if (SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20) {
+    sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true } });
+  }
+} catch (e) { console.error("Supabase init error", e); }
+
+if (!sb) {
+  document.getElementById("loginErr").textContent = "⚠️ Configuração do Supabase ausente. Veja README, etapa 2.";
+}
+
+const STATE = {
+  records: [],
+  sortKey: "checkin",
+  sortDir: "asc",
+  filters: { busca: "", status: "", origem: "", periodo: "" },
+  user: null
+};
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+const today = () => {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+};
+
+function parseDate(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+function fmtDate(s) {
+  if (!s) return "";
+  const d = parseDate(s);
+  if (!d) return s;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+function fmtBRL(n) {
+  if (!n || isNaN(n)) return "—";
+  return Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 });
+}
+function noites(ci, co) {
+  const a = parseDate(ci), b = parseDate(co);
+  if (!a || !b) return 0;
+  return Math.max(0, Math.round((b - a) / 86400000));
+}
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+
+function deriveStatus(r) {
+  if (r.statusManual === "cancelado") return "cancelado";
+  const t = today();
+  const ci = parseDate(r.checkin), co = parseDate(r.checkout);
+  if (co && t > co) return "concluido";
+  if (ci && co && t >= ci && t <= co) return "hospedado";
+  if (r.pagamentoFinalData) return "pago";
+  if (r.depositoData) return "deposito";
+  if (r.dataReserva && (r.linkPagamento === "Sim" || (r.linkPagamento && r.linkPagamento.includes("-")))) return "aguardando";
+  if (r.dataReserva || r.confirmacao) return "reservado";
+  if (r.cotacaoEnviada) return "cotacao";
+  if (r.primeiroContato || r.name) return "lead";
+  return "lead";
+}
+
+const STATUS_LABEL = {
+  lead: "Lead novo", cotacao: "Cotação enviada", reservado: "Reserva confirmada",
+  aguardando: "Aguardando pagto.", deposito: "Depósito pago", pago: "Pago integral",
+  hospedado: "Hospedado", concluido: "Concluído", cancelado: "Cancelado"
+};
+const STATUS_CLASS = {
+  lead: "b-lead", cotacao: "b-cot", reservado: "b-res", aguardando: "b-aguard",
+  deposito: "b-dep", pago: "b-pago", hospedado: "b-hosp", concluido: "b-fim", cancelado: "b-canc"
+};
+
+function uid() { return "r" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+const FIELD_PAIRS = [
+  ["id","id"], ["name","name"], ["email","email"], ["whatsapp","whatsapp"],
+  ["origem","origem"], ["quarto","quarto"], ["pax","pax"], ["diaria","diaria"], ["folio","folio"],
+  ["primeiroContato","primeiro_contato"], ["cotacaoEnviada","cotacao_enviada"],
+  ["dataReserva","data_reserva"], ["confirmacao","confirmacao"],
+  ["grupoWhatsapp","grupo_whatsapp"], ["linkPagamento","link_pagamento"],
+  ["depositoData","deposito_data"], ["pagamentoFinalData","pagamento_final_data"],
+  ["checkin","checkin"], ["checkout","checkout"],
+  ["statusManual","status_manual"], ["obs","obs"]
+];
+function toDB(r) {
+  const out = {};
+  FIELD_PAIRS.forEach(([js, db]) => {
+    let v = r[js];
+    if (db === "pax") v = parseInt(v) || 0;
+    else if (db === "diaria") v = parseFloat(v) || 0;
+    else if (db === "grupo_whatsapp") v = !!v;
+    else if (typeof v === "string" && v === "") {
+      const isDate = (db.endsWith("_data") || db === "checkin" || db === "checkout" || db === "primeiro_contato" || db === "cotacao_enviada" || db === "data_reserva" || db === "confirmacao");
+      v = isDate ? null : "";
+    }
+    out[db] = v;
+  });
+  return out;
+}
+function fromDB(row) {
+  const out = {};
+  FIELD_PAIRS.forEach(([js, db]) => {
+    let v = row[db];
+    if (v === null || v === undefined) v = (js === "pax" || js === "diaria") ? 0 : (js === "grupoWhatsapp" ? false : "");
+    out[js] = v;
+  });
+  return out;
+}
+
+async function carregarTudo() {
+  if (!sb) return;
+  showLoading("Carregando reservas…");
+  try {
+    const { data, error } = await sb.from("reservas").select("*").order("checkin", { ascending: true, nullsFirst: false });
+    if (error) throw error;
+    STATE.records = (data || []).map(fromDB);
+    renderTudo();
+  } catch (e) {
+    console.error(e); toast("Erro ao carregar: " + e.message);
+  } finally { hideLoading(); }
+}
+
+async function upsertReserva(r) {
+  if (!sb) return;
+  const payload = toDB(r);
+  const { error } = await sb.from("reservas").upsert(payload, { onConflict: "id" });
+  if (error) { toast("Erro ao salvar: " + error.message); console.error(error); throw error; }
+}
+
+async function deletarReserva(id) {
+  if (!sb) return;
+  const { error } = await sb.from("reservas").delete().eq("id", id);
+  if (error) { toast("Erro ao excluir: " + error.message); console.error(error); throw error; }
+}
+
+function ouvirRealtime() {
+  if (!sb) return;
+  sb.channel("reservas-changes")
+    .on("postgres_changes", { event: "*", schema: "public", table: "reservas" }, async () => {
+      const { data } = await sb.from("reservas").select("*");
+      if (data) { STATE.records = data.map(fromDB); renderTudo(); }
+    })
+    .subscribe();
+}
+
+function showLoading(msg) { $("#loadingMsg").textContent = msg || "Carregando…"; $("#loadingOverlay").classList.add("show"); }
+function hideLoading() { $("#loadingOverlay").classList.remove("show"); }
+
+function showAppForUser(user) {
+  STATE.user = user;
+  $("#loginBg").style.display = "none";
+  document.body.classList.remove("not-authed");
+  $("#headerUser").innerHTML = `<span style="opacity:.85;">${escapeHtml(user.email)}</span><button id="btnSair">Sair</button>`;
+  $("#btnSair").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
+}
+function showLoginScreen() {
+  $("#loginBg").style.display = "flex";
+  document.body.classList.add("not-authed");
+}
+
+async function tryLogin(e) {
+  e.preventDefault();
+  if (!sb) { $("#loginErr").textContent = "Supabase não configurado."; return; }
+  const email = $("#loginEmail").value.trim();
+  const pass = $("#loginPass").value;
+  $("#loginBtn").disabled = true; $("#loginErr").textContent = "";
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) throw error;
+    showAppForUser(data.user);
+    await carregarTudo();
+    ouvirRealtime();
+  } catch (e) {
+    $("#loginErr").textContent = e.message || "Falha no login.";
+  } finally { $("#loginBtn").disabled = false; }
+}
+
+function renderKPIs() {
+  const t = today();
+  const ano = t.getFullYear(), mes = t.getMonth();
+  let leadsMes = 0, confirmadas = 0, hospedadosHoje = 0, receitaPrevista = 0;
+  STATE.records.forEach(r => {
+    const pc = parseDate(r.primeiroContato);
+    if (pc && pc.getFullYear() === ano && pc.getMonth() === mes) leadsMes++;
+    const st = deriveStatus(r);
+    if (["reservado","aguardando","deposito","pago","hospedado"].includes(st)) confirmadas++;
+    const ci = parseDate(r.checkin), co = parseDate(r.checkout);
+    if (ci && co && t >= ci && t <= co && st !== "cancelado") hospedadosHoje++;
+    if (ci && ci >= t && st !== "cancelado") {
+      receitaPrevista += (Number(r.diaria)||0) * noites(r.checkin, r.checkout);
+    }
+  });
+  $("#kpis").innerHTML = `
+    <div class="kpi"><div class="v">${leadsMes}</div><div class="l">Leads no mês</div></div>
+    <div class="kpi"><div class="v">${confirmadas}</div><div class="l">Reservas ativas</div></div>
+    <div class="kpi"><div class="v">${hospedadosHoje}</div><div class="l">Hospedados hoje</div></div>
+    <div class="kpi"><div class="v">${fmtBRL(receitaPrevista)}</div><div class="l">Receita prevista</div></div>
+  `;
+}
+
+function renderTodayCards() {
+  const t = today();
+  const ts = t.getTime();
+  const ci = STATE.records.filter(r => {
+    const d = parseDate(r.checkin);
+    return d && d.getTime() === ts && deriveStatus(r) !== "cancelado";
+  });
+  const co = STATE.records.filter(r => {
+    const d = parseDate(r.checkout);
+    return d && d.getTime() === ts && deriveStatus(r) !== "cancelado";
+  });
+  const aguardando = STATE.records.filter(r => {
+    const st = deriveStatus(r);
+    if (st !== "aguardando" && st !== "reservado") return false;
+    const ref = parseDate(r.confirmacao) || parseDate(r.dataReserva) || parseDate(r.cotacaoEnviada);
+    if (!ref) return false;
+    return (ts - ref.getTime()) > 3 * 86400000;
+  });
+
+  const renderList = (arr) => {
+    if (!arr.length) return `<li class="empty">Nada para hoje.</li>`;
+    return arr.slice(0, 6).map(r => `
+      <li><a href="#" data-id="${r.id}" class="open-link" style="color:var(--ink); text-decoration:none;">
+        <strong>${escapeHtml(r.name)}</strong>
+        ${r.quarto ? `· <span class="pill">${escapeHtml(r.quarto)}</span>` : ""}
+        ${r.pax ? `· ${r.pax} pax` : ""}
+      </a></li>
+    `).join("");
+  };
+  const renderAguardando = (arr) => {
+    if (!arr.length) return `<li class="empty">Nada pendente.</li>`;
+    return arr.slice(0, 6).map(r => `
+      <li><a href="#" data-id="${r.id}" class="open-link" style="color:var(--ink); text-decoration:none;">
+        <strong>${escapeHtml(r.name)}</strong>
+        · check-in ${fmtDate(r.checkin) || "?"}
+      </a></li>
+    `).join("");
+  };
+  $("#checkinsHoje").innerHTML = renderList(ci);
+  $("#checkoutsHoje").innerHTML = renderList(co);
+  $("#aguardando").innerHTML = renderAguardando(aguardando);
+  $$(".open-link").forEach(a => a.addEventListener("click", (e) => {
+    e.preventDefault();
+    abrirModal(a.dataset.id);
+  }));
+}
+
+function aplicarFiltros(records) {
+  const f = STATE.filters;
+  const t = today();
+  return records.filter(r => {
+    if (f.busca) {
+      const q = f.busca.toLowerCase();
+      const blob = [r.name, r.email, r.folio, r.whatsapp, r.quarto, r.obs].map(x => (x||"").toString().toLowerCase()).join(" ");
+      if (!blob.includes(q)) return false;
+    }
+    if (f.status && deriveStatus(r) !== f.status) return false;
+    if (f.origem && r.origem !== f.origem) return false;
+    if (f.periodo) {
+      const ci = parseDate(r.checkin);
+      if (!ci) return false;
+      const ts = t.getTime(), cit = ci.getTime();
+      if (f.periodo === "checkin-hoje" && cit !== ts) return false;
+      if (f.periodo === "checkin-semana") {
+        const start = ts, end = ts + 7*86400000;
+        if (cit < start || cit > end) return false;
+      }
+      if (f.periodo === "checkin-mes") {
+        if (ci.getMonth() !== t.getMonth() || ci.getFullYear() !== t.getFullYear()) return false;
+      }
+      if (f.periodo === "checkin-futuro" && cit < ts) return false;
+      if (f.periodo === "ja-passou" && cit >= ts) return false;
+    }
+    return true;
+  });
+}
+
+function ordenar(records) {
+  const k = STATE.sortKey, dir = STATE.sortDir === "asc" ? 1 : -1;
+  return [...records].sort((a, b) => {
+    let va, vb;
+    if (k === "status") { va = deriveStatus(a); vb = deriveStatus(b); }
+    else if (k === "noites") { va = noites(a.checkin, a.checkout); vb = noites(b.checkin, b.checkout); }
+    else if (k === "total") { va = (Number(a.diaria)||0)*noites(a.checkin,a.checkout); vb = (Number(b.diaria)||0)*noites(b.checkin,b.checkout); }
+    else { va = a[k] ?? ""; vb = b[k] ?? ""; }
+    if (typeof va === "number" && typeof vb === "number") return (va - vb) * dir;
+    return String(va).localeCompare(String(vb), "pt-BR", { numeric: true }) * dir;
+  });
+}
+
+function renderTabela() {
+  const filtrados = aplicarFiltros(STATE.records);
+  const ordenados = ordenar(filtrados);
+  const tbody = $("#tbody");
+  if (!ordenados.length) {
+    tbody.innerHTML = "";
+    $("#vazio").style.display = "block";
+  } else {
+    $("#vazio").style.display = "none";
+    tbody.innerHTML = ordenados.map(r => {
+      const st = deriveStatus(r);
+      const n = noites(r.checkin, r.checkout);
+      const total = (Number(r.diaria)||0) * n;
+      return `
+        <tr data-id="${r.id}">
+          <td><span class="badge ${STATUS_CLASS[st]}">${STATUS_LABEL[st]}</span></td>
+          <td class="name-cell">${escapeHtml(r.name)}</td>
+          <td>${r.origem ? `<span class="pill">${escapeHtml(r.origem)}</span>` : ""}</td>
+          <td>${fmtDate(r.primeiroContato)}</td>
+          <td>${fmtDate(r.cotacaoEnviada)}</td>
+          <td>${fmtDate(r.dataReserva)}</td>
+          <td>${escapeHtml(r.folio)}</td>
+          <td>${escapeHtml(r.quarto)}</td>
+          <td>${r.pax ? r.pax : ""}</td>
+          <td>${r.diaria ? fmtBRL(r.diaria) : ""}</td>
+          <td>${total ? fmtBRL(total) : ""}</td>
+          <td>${fmtDate(r.checkin)}</td>
+          <td>${fmtDate(r.checkout)}</td>
+          <td>${n || ""}</td>
+          <td>${r.depositoData ? `<span class="yes">${fmtDate(r.depositoData)}</span>` : `<span class="no">—</span>`}</td>
+          <td>${r.pagamentoFinalData ? `<span class="yes">${fmtDate(r.pagamentoFinalData)}</span>` : `<span class="no">—</span>`}</td>
+          <td>${escapeHtml(r.whatsapp)}</td>
+          <td>${escapeHtml(r.email)}</td>
+          <td class="row-actions">
+            <button title="Editar" data-act="edit">✎</button>
+            <button title="Duplicar" data-act="dup">⎘</button>
+            <button title="Excluir" data-act="del" class="del">🗑</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+  $("#contador").textContent = ordenados.length;
+  $("#contadorTotal").textContent = STATE.records.length;
+  tbody.querySelectorAll("tr").forEach(tr => {
+    tr.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-act]");
+      const id = tr.dataset.id;
+      if (btn) {
+        e.stopPropagation();
+        if (btn.dataset.act === "edit") abrirModal(id);
+        else if (btn.dataset.act === "dup") duplicar(id);
+        else if (btn.dataset.act === "del") excluirComConfirma(id);
+      } else {
+        abrirModal(id);
+      }
+    });
+  });
+}
+
+function renderTudo() { renderKPIs(); renderTodayCards(); renderTabela(); }
+
+function abrirModal(id) {
+  const r = id ? STATE.records.find(x => x.id === id) : null;
+  $("#modalTitulo").textContent = r ? "Editar reserva" : "Nova reserva";
+  $("#btnExcluir").style.display = r ? "inline-flex" : "none";
+  $("#modalRodape").textContent = r ? `Status atual: ${STATUS_LABEL[deriveStatus(r)]}` : "Os campos do funil controlam o status automaticamente";
+  const fields = ["name","email","whatsapp","quarto","folio","origem","obs",
+    "primeiroContato","cotacaoEnviada","dataReserva","confirmacao","linkPagamento",
+    "depositoData","pagamentoFinalData","checkin","checkout","statusManual"];
+  fields.forEach(f => {
+    const el = $("#f_" + f);
+    if (el) el.value = r ? (r[f] ?? "") : "";
+  });
+  $("#f_pax").value = r ? (r.pax || "") : "";
+  $("#f_diaria").value = r ? (r.diaria || "") : "";
+  $("#f_grupoWhatsapp").value = r && r.grupoWhatsapp ? "true" : "false";
+  $("#f_id").value = r ? r.id : "";
+  recalcTotal();
+  $("#modalBg").classList.add("open");
+  setTimeout(() => $("#f_name").focus(), 100);
+}
+function fecharModal() { $("#modalBg").classList.remove("open"); }
+
+function recalcTotal() {
+  const d = parseFloat($("#f_diaria").value) || 0;
+  const n = noites($("#f_checkin").value, $("#f_checkout").value);
+  $("#f_total_calc").value = d && n ? `${fmtBRL(d * n)} (${n} noite${n>1?"s":""})` : "";
+}
+
+async function salvarFormulario(e) {
+  e && e.preventDefault();
+  const id = $("#f_id").value;
+  let r = id ? STATE.records.find(x => x.id === id) : { id: uid() };
+  if (!r) return;
+  const isNew = !id;
+  const payload = isNew ? r : { ...r };
+  payload.name = $("#f_name").value.trim();
+  if (!payload.name) { toast("Nome é obrigatório"); $("#f_name").focus(); return; }
+  payload.email = $("#f_email").value.trim();
+  payload.whatsapp = $("#f_whatsapp").value.trim();
+  payload.origem = $("#f_origem").value;
+  payload.quarto = $("#f_quarto").value.trim();
+  payload.folio = $("#f_folio").value.trim();
+  payload.pax = parseInt($("#f_pax").value) || 0;
+  payload.diaria = parseFloat($("#f_diaria").value) || 0;
+  payload.checkin = $("#f_checkin").value;
+  payload.checkout = $("#f_checkout").value;
+  payload.primeiroContato = $("#f_primeiroContato").value;
+  payload.cotacaoEnviada = $("#f_cotacaoEnviada").value;
+  payload.dataReserva = $("#f_dataReserva").value;
+  payload.confirmacao = $("#f_confirmacao").value;
+  payload.linkPagamento = $("#f_linkPagamento").value.trim();
+  payload.depositoData = $("#f_depositoData").value;
+  payload.pagamentoFinalData = $("#f_pagamentoFinalData").value;
+  payload.grupoWhatsapp = $("#f_grupoWhatsapp").value === "true";
+  payload.statusManual = $("#f_statusManual").value;
+  payload.obs = $("#f_obs").value.trim();
+
+  showLoading("Salvando…");
+  try {
+    await upsertReserva(payload);
+    if (isNew) STATE.records.push(payload);
+    else Object.assign(r, payload);
+    fecharModal();
+    renderTudo();
+    toast(isNew ? "Reserva criada" : "Reserva atualizada");
+  } catch(e) {} finally { hideLoading(); }
+}
+
+async function duplicar(id) {
+  const orig = STATE.records.find(x => x.id === id);
+  if (!orig) return;
+  const novo = JSON.parse(JSON.stringify(orig));
+  novo.id = uid();
+  novo.name = orig.name + " (cópia)";
+  novo.folio = "";
+  showLoading("Duplicando…");
+  try {
+    await upsertReserva(novo);
+    STATE.records.push(novo);
+    renderTudo();
+    toast("Reserva duplicada");
+  } catch(e) {} finally { hideLoading(); }
+}
+
+async function excluirComConfirma(id) {
+  const r = STATE.records.find(x => x.id === id);
+  if (!r) return;
+  if (!confirm(`Excluir reserva de ${r.name}? Essa ação não pode ser desfeita.`)) return;
+  showLoading("Excluindo…");
+  try {
+    await deletarReserva(id);
+    STATE.records = STATE.records.filter(x => x.id !== id);
+    fecharModal();
+    renderTudo();
+    toast("Reserva excluída");
+  } catch(e) {} finally { hideLoading(); }
+}
+
+function exportarJson() {
+  const blob = new Blob([JSON.stringify(STATE.records, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `manduna-reservas-${stamp}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("Backup exportado");
+}
+
+function exportarCsv() {
+  const cols = ["status","name","origem","email","whatsapp","quarto","pax","diaria","folio",
+    "primeiroContato","cotacaoEnviada","dataReserva","confirmacao","grupoWhatsapp","linkPagamento",
+    "depositoData","pagamentoFinalData","checkin","checkout","noites","total","obs"];
+  const header = cols.join(",");
+  const lines = STATE.records.map(r => {
+    const n = noites(r.checkin, r.checkout);
+    const total = (Number(r.diaria)||0) * n;
+    const enriched = { ...r, status: STATUS_LABEL[deriveStatus(r)], noites: n, total: total };
+    return cols.map(c => {
+      let v = enriched[c] ?? "";
+      v = String(v).replace(/"/g,'""');
+      return /[",\n]/.test(v) ? `"${v}"` : v;
+    }).join(",");
+  });
+  const csv = "\uFEFF" + [header, ...lines].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `manduna-reservas-${stamp}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("CSV exportado");
+}
+
+async function importarJsonArquivo(file) {
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const arr = JSON.parse(reader.result);
+      if (!Array.isArray(arr)) throw new Error("não é array");
+      if (!confirm(`Importar ${arr.length} registros? (Os existentes com mesmo ID serão atualizados)`)) return;
+      showLoading(`Importando ${arr.length} registros…`);
+      const rows = arr.map(toDB);
+      const { error } = await sb.from("reservas").upsert(rows, { onConflict: "id" });
+      if (error) throw error;
+      await carregarTudo();
+      toast(`Importados ${arr.length} registros`);
+    } catch(e) { alert("Falha ao importar: " + e.message); } finally { hideLoading(); }
+  };
+  reader.readAsText(file);
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+function bindEvents() {
+  $("#loginForm").addEventListener("submit", tryLogin);
+  $("#btnNovo").addEventListener("click", () => abrirModal(null));
+  $("#btnFechar").addEventListener("click", fecharModal);
+  $("#btnCancelar").addEventListener("click", fecharModal);
+  $("#btnSalvar").addEventListener("click", salvarFormulario);
+  $("#formReserva").addEventListener("submit", salvarFormulario);
+  $("#btnExcluir").addEventListener("click", () => {
+    const id = $("#f_id").value;
+    if (id) excluirComConfirma(id);
+  });
+  $("#modalBg").addEventListener("click", (e) => { if (e.target.id === "modalBg") fecharModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
+
+  ["f_diaria","f_checkin","f_checkout"].forEach(id => $("#"+id).addEventListener("input", recalcTotal));
+
+  $("#busca").addEventListener("input", (e) => { STATE.filters.busca = e.target.value; renderTabela(); });
+  $("#filtroStatus").addEventListener("change", (e) => { STATE.filters.status = e.target.value; renderTabela(); });
+  $("#filtroOrigem").addEventListener("change", (e) => { STATE.filters.origem = e.target.value; renderTabela(); });
+  $("#filtroPeriodo").addEventListener("change", (e) => { STATE.filters.periodo = e.target.value; renderTabela(); });
+
+  $$("thead th[data-sort]").forEach(th => th.addEventListener("click", () => {
+    const k = th.dataset.sort;
+    if (STATE.sortKey === k) STATE.sortDir = STATE.sortDir === "asc" ? "desc" : "asc";
+    else { STATE.sortKey = k; STATE.sortDir = "asc"; }
+    renderTabela();
+  }));
+
+  $("#btnExportJson").addEventListener("click", exportarJson);
+  $("#btnExportCsv").addEventListener("click", exportarCsv);
+  $("#btnImport").addEventListener("click", () => $("#inputImport").click());
+  $("#inputImport").addEventListener("change", (e) => {
+    if (e.target.files[0]) importarJsonArquivo(e.target.files[0]);
+    e.target.value = "";
+  });
+}
+
+async function boot() {
+  bindEvents();
+  if (!sb) { showLoginScreen(); return; }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user) {
+    showAppForUser(session.user);
+    await carregarTudo();
+    ouvirRealtime();
+  } else {
+    showLoginScreen();
+  }
+}
+boot();
+</script>
+</body>
+</html>
